@@ -70,7 +70,7 @@
 
 + [watch](thirds/littlevgl_qml/test/qml/watch.qml)
 
-![evm](./doc/watch.png)
+![evm](./doc/watch.gif)
 
 
 五、 EVM问卷调查
