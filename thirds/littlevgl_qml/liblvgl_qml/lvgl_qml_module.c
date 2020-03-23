@@ -286,8 +286,6 @@ static evm_val_t lvgl_qml_object_create(evm_t * e, evm_val_t *p, int argc, evm_v
         obj = (lv_obj_t*)lv_arc_create(parent, NULL);
     }else if (!strcmp(obj_name, "ProgressBar")){
         obj = (lv_obj_t*)lv_bar_create(parent, NULL);
-    }  else if (!strcmp(obj_name, "Canvas")){
-        obj = (lv_obj_t*)lv_canvas_create(parent, NULL);
     } else if (!strcmp(obj_name, "Chart")){
         obj = (lv_obj_t*)lv_chart_create(parent, NULL);
     } else if (!strcmp(obj_name, "ChartSeries")){
@@ -343,8 +341,6 @@ static evm_val_t lvgl_qml_object_create(evm_t * e, evm_val_t *p, int argc, evm_v
         evm_object_set_init(p, (evm_init_fn)lvgl_qml_gc_init);
     } else if (!strcmp(obj_name, "MessageBox")){
         obj = (lv_obj_t*)lv_mbox_create(parent, NULL);
-    } else if (!strcmp(obj_name, "Canvas")){
-        obj = (lv_obj_t*)lv_canvas_create(parent, NULL);
     } else if (!strcmp(obj_name, "TextArea")){
         obj = (lv_obj_t*)lv_ta_create(parent, NULL);
         lv_obj_set_user_data(obj, *p);
@@ -1044,54 +1040,6 @@ static evm_val_t lvgl_qml_ChartSeries_set_color(evm_t * e, evm_val_t *p, int arg
     return EVM_VAL_UNDEFINED;
 }
 
-
-static evm_val_t lvgl_qml_Canvas_set_source(evm_t * e, evm_val_t *p, int argc, evm_val_t * v){
-    if( argc >= 1 && evm_is_string(v)){
-        lv_obj_t * obj = (lv_obj_t*)evm_qml_object_get_pointer( p );
-        int w = lv_obj_get_width(obj);
-        int h = lv_obj_get_height(obj);
-        lv_canvas_draw_img(obj, w/2, h/2, evm_2_string(v), &lv_style_plain);
-    }
-    return EVM_VAL_UNDEFINED;
-}
-
-static evm_val_t lvgl_qml_Canvas_set_bg(evm_t * e, evm_val_t *p, int argc, evm_val_t * v){
-    if( argc >= 1 && evm_is_string(v)){
-        lv_obj_t * obj = (lv_obj_t*)evm_qml_object_get_pointer( p );
-        lv_color_t c = LV_COLOR_TRANSP;
-        lv_canvas_fill_bg(obj, c);
-    }
-    return EVM_VAL_UNDEFINED;
-}
-
-static evm_val_t lvgl_qml_Canvas_set_buffer_size(evm_t * e, evm_val_t *p, int argc, evm_val_t * v){
-    if( argc >= 1 && evm_is_number(v)){
-        lv_obj_t * obj = (lv_obj_t*)evm_qml_object_get_pointer( p );
-        lv_color_t *  buf = lv_mem_alloc(3 * evm_2_integer(v));
-        int w = lv_obj_get_width(obj);
-        int h = lv_obj_get_height(obj);
-        lv_canvas_set_buffer(obj, buf, w, h, LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED);
-    }
-    return EVM_VAL_UNDEFINED;
-}
-
-lv_color_t cbuf_tmp[LV_VER_RES_MAX * LV_HOR_RES_MAX];
-
-static evm_val_t lvgl_qml_Canvas_set_rotate(evm_t * e, evm_val_t *p, int argc, evm_val_t * v){
-    if( argc >= 1 && evm_is_number(v)){
-        lv_obj_t * obj = (lv_obj_t*)evm_qml_object_get_pointer( p );
-        lv_img_dsc_t * s_img = lv_canvas_get_img(obj);
-        memcpy(cbuf_tmp, s_img->data, sizeof(cbuf_tmp));
-        lv_img_dsc_t img = *s_img;
-        img.data = (void *)cbuf_tmp;
-        img.header.cf = LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED;
-        lv_color_t c = LV_COLOR_TRANSP;
-        lv_canvas_fill_bg(obj, c);
-        lv_canvas_rotate(obj, &img, evm_2_integer(v), 0, 0, 50, 50);
-    }
-    return EVM_VAL_UNDEFINED;
-}
-
 /***********Gauge*************/
 static evm_val_t lvgl_qml_Gauge_set_needle(evm_t * e, evm_val_t *p, int argc, evm_val_t * v){
     if( argc >= 1 && evm_is_list(v)){
@@ -1361,274 +1309,264 @@ static evm_val_t lvgl_qml_init(evm_t * e, evm_val_t *p, int argc, evm_val_t * v)
                             {EVM_QML_INT, "line_width", (evm_native_fn)lvgl_qml_GlobalStyle_set_line_width},\
                             {EVM_QML_INT, "line_opa", (evm_native_fn)lvgl_qml_GlobalStyle_set_line_opa},\
                             {EVM_QML_INT, "line_rounded", (evm_native_fn)lvgl_qml_GlobalStyle_set_line_rounded},\
+							
+static evm_qml_value_reg_t qml_rectangle_values[] = {
+	BASE_VALUES
+	{EVM_QML_CALLBACK, "onClicked", NULL},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Style_values[] = {
+	{EVM_QML_INT | EVM_QML_STRING, "main_color", (evm_native_fn)lvgl_qml_Style_set_main_color},
+	{EVM_QML_INT | EVM_QML_STRING, "grad_color", (evm_native_fn)lvgl_qml_Style_set_grad_color},
+	{EVM_QML_INT, "radius", (evm_native_fn)lvgl_qml_Style_set_radius},
+	{EVM_QML_DOUBLE, "opacity", (evm_native_fn)lvgl_qml_Style_set_opacity},
+	{EVM_QML_INT | EVM_QML_STRING, "border_color", (evm_native_fn)lvgl_qml_Style_set_border_color},
+	{EVM_QML_DOUBLE, "border_opacity", (evm_native_fn)lvgl_qml_Style_set_border_opacity},
+	{EVM_QML_INT, "border_width", (evm_native_fn)lvgl_qml_Style_set_border_width},
+	{EVM_QML_INT, "padding_bottom", (evm_native_fn)lvgl_qml_Style_set_padding_bottom},
+	{EVM_QML_INT, "padding_top", (evm_native_fn)lvgl_qml_Style_set_padding_top},
+	{EVM_QML_INT, "padding_left", (evm_native_fn)lvgl_qml_Style_set_padding_left},
+	{EVM_QML_INT, "padding_right", (evm_native_fn)lvgl_qml_Style_set_padding_right},
+	{EVM_QML_INT, "padding_inner", (evm_native_fn)lvgl_qml_Style_set_padding_inner},
+	{EVM_QML_INT | EVM_QML_STRING, "text_color", (evm_native_fn)lvgl_qml_Style_set_text_color},
+	{EVM_QML_INT | EVM_QML_STRING, "sel_color", (evm_native_fn)lvgl_qml_Style_set_text_sel_color},
+	{EVM_QML_INT, "letter_space", (evm_native_fn)lvgl_qml_Style_set_text_letter_space},
+	{EVM_QML_INT, "line_space", (evm_native_fn)lvgl_qml_Style_set_text_line_space},
+	{EVM_QML_DOUBLE, "text_opacity", (evm_native_fn)lvgl_qml_Style_set_text_opacity},
+	{EVM_QML_INT | EVM_QML_STRING, "line_color", (evm_native_fn)lvgl_qml_Style_set_line_color},
+	{EVM_QML_INT, "line_width", (evm_native_fn)lvgl_qml_Style_set_line_width},
+	{EVM_QML_INT, "line_opa", (evm_native_fn)lvgl_qml_Style_set_line_opa},
+	{EVM_QML_INT, "line_rounded", (evm_native_fn)lvgl_qml_Style_set_line_rounded},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Circle_values[] = {
+	BASE_VALUES
+	{EVM_QML_COMPLEX, "angles", (evm_native_fn)lvgl_qml_Circle_set_angles},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Bar_values[] = {
+	BASE_VALUES
+	{EVM_QML_INT, "min", (evm_native_fn)lvgl_qml_Bar_set_min},
+	{EVM_QML_INT, "max", (evm_native_fn)lvgl_qml_Bar_set_max},
+	{EVM_QML_INT, "value", (evm_native_fn)lvgl_qml_Bar_set_value},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Chart_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "type", (evm_native_fn)lvgl_qml_Chart_set_type},
+	{EVM_QML_INT, "lineWidth", (evm_native_fn)lvgl_qml_Chart_set_lineWidth},
+	{EVM_QML_COMPLEX, "lineCounts", (evm_native_fn)lvgl_qml_Chart_set_lineCounts},
+	{EVM_QML_COMPLEX, "yRange", (evm_native_fn)lvgl_qml_Chart_set_yrange},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_ChartSeries_values[] = {
+	BASE_VALUES
+	{EVM_QML_COMPLEX, "data", (evm_native_fn)lvgl_qml_ChartSeries_set_data},
+	{EVM_QML_STRING, "color", (evm_native_fn)lvgl_qml_ChartSeries_set_color},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_button_values[] = {
+	BASE_VALUES
+	{EVM_QML_CALLBACK, "onClicked", NULL},
+	{EVM_QML_CALLBACK, "onPressed", NULL},
+	{EVM_QML_CALLBACK, "onReleased", NULL},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Imagebutton_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "pressed", (evm_native_fn)lvgl_qml_ImageButton_set_pressedSource},
+	{EVM_QML_STRING, "released", (evm_native_fn)lvgl_qml_ImageButton_set_releasedSource},
+	{EVM_QML_STRING, "disbaled", (evm_native_fn)lvgl_qml_ImageButton_set_DisabledSource},
+	{EVM_QML_CALLBACK, "onClicked", NULL},
+	{EVM_QML_CALLBACK, "onPressed", NULL},
+	{EVM_QML_CALLBACK, "onReleased", NULL},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_TileView_values[] = {
+	BASE_VALUES
+	{EVM_QML_COMPLEX, "pageIds", (evm_native_fn)lvgl_qml_TileView_set_pageIds},
+	{EVM_QML_COMPLEX, "currentId", (evm_native_fn)lvgl_qml_TileView_set_currentId},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Tile_values[] = {
+	BASE_VALUES
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_TabView_values[] = {
+	BASE_VALUES
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Tab_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "title", (evm_native_fn)lvgl_qml_Tab_set_title},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_text_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_Text_set_text},
+	{EVM_QML_STRING, "symbol", (evm_native_fn)lvgl_qml_Text_set_symbol},
+	{EVM_QML_STRING, "align", (evm_native_fn)lvgl_qml_Text_set_align},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_ListView_values[] = {
+	BASE_VALUES
+	{EVM_QML_COMPLEX, "items", (evm_native_fn)lvgl_qml_ListView_set_Items},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Roller_values[] = {
+	BASE_VALUES
+	{EVM_QML_COMPLEX, "items", (evm_native_fn)lvgl_qml_Roller_set_Items},
+	{EVM_QML_INT, "currentIndex", (evm_native_fn)lvgl_qml_Roller_set_currentIndex},
+	{EVM_QML_INT, "visibleItemsCount", (evm_native_fn)lvgl_qml_Roller_set_visibleItemsCount},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Slider_values[] = {
+	BASE_VALUES
+	{EVM_QML_INT, "value", (evm_native_fn)lvgl_qml_Slider_set_value},
+	{EVM_QML_INT, "min", (evm_native_fn)lvgl_qml_Slider_set_min},
+	{EVM_QML_INT, "max", (evm_native_fn)lvgl_qml_Slider_set_max},
+	{EVM_QML_CALLBACK, "onValueChanged", (evm_native_fn)NULL},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_ScrollArea_values[] = {
+	BASE_VALUES
+	{NULL, NULL, NULL}
+};
+
+
+static evm_qml_value_reg_t qml_MessageBox_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_MessageBox_set_text},
+	{EVM_QML_STRING, "buttons", (evm_native_fn)lvgl_qml_MessageBox_set_buttons},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_TextArea_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "textAlign", (evm_native_fn)lvgl_qml_TextArea_set_text_align},
+	{EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_TextArea_set_text},
+	{EVM_QML_STRING, "placeholder", (evm_native_fn)lvgl_qml_TextArea_set_placeholder_text},
+	{EVM_QML_BOOLEAN, "oneLine", (evm_native_fn)lvgl_qml_TextArea_set_one_line},
+	{EVM_QML_INT, "maxLength", (evm_native_fn)lvgl_qml_TextArea_set_max_length},
+	{EVM_QML_BOOLEAN, "pwdMode", (evm_native_fn)lvgl_qml_TextArea_set_pwd_mode},
+	{EVM_QML_CALLBACK, "onValueChanged", NULL},
+	{EVM_QML_CALLBACK, "onFocused", NULL},
+	{EVM_QML_CALLBACK, "onDefocused", NULL},
+	{EVM_QML_CALLBACK, "onClicked", NULL},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Keyboard_values[] = {
+	BASE_VALUES
+	{EVM_QML_COMPLEX, "ta", (evm_native_fn)lvgl_qml_Keyboard_set_ta},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Image_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "source", (evm_native_fn)lvgl_qml_Image_set_source},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_CheckBox_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_CheckBox_set_text},
+	{EVM_QML_CALLBACK, "onClicked", NULL},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Container_values[] = {
+	BASE_VALUES
+	{EVM_QML_STRING, "layout", (evm_native_fn)lvgl_qml_Container_set_layout},
+	{EVM_QML_BOOLEAN, "fit", (evm_native_fn)lvgl_qml_Container_set_fit},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_StylePretty_values[] = {
+	GLOBALSTYLE_VALUES
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_StylePlain_values[] = {
+	GLOBALSTYLE_VALUES
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_StyleBtnRelease_values[] = {
+	GLOBALSTYLE_VALUES
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_StyleBtnPress_values[] = {
+	GLOBALSTYLE_VALUES
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_Gauge_values[] = {
+	BASE_VALUES
+	{EVM_QML_INT, "max", (evm_native_fn)lvgl_qml_Gauge_set_max},
+	{EVM_QML_INT, "min", (evm_native_fn)lvgl_qml_Gauge_set_min},
+	{EVM_QML_COMPLEX, "scale", (evm_native_fn)lvgl_qml_Gauge_set_scale},
+	{EVM_QML_COMPLEX, "needle", (evm_native_fn)lvgl_qml_Gauge_set_needle},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_value_reg_t qml_GaugeValue_values[] = {
+	{EVM_QML_INT, "value", (evm_native_fn)lvgl_qml_Gauge_set_value},
+	{NULL, NULL, NULL}
+};
+
+static evm_qml_object_reg_t qml_objects[] = {
+	{"Rectangle", (evm_native_fn)lvgl_qml_object_create, qml_rectangle_values},
+	{"Circle", (evm_native_fn)lvgl_qml_object_create, qml_Circle_values},
+	{"ProgressBar", (evm_native_fn)lvgl_qml_object_create, qml_Bar_values},
+	{"Chart", (evm_native_fn)lvgl_qml_object_create, qml_Chart_values},
+	{"ChartSeries", (evm_native_fn)lvgl_qml_object_create, qml_ChartSeries_values},
+	{"Button", (evm_native_fn)lvgl_qml_object_create, qml_button_values},
+	{"ImageButton", (evm_native_fn)lvgl_qml_object_create, qml_Imagebutton_values},
+	{"Text", (evm_native_fn)lvgl_qml_object_create, qml_text_values},
+	{"TileView", (evm_native_fn)lvgl_qml_object_create, qml_TileView_values},
+	{"Tile", (evm_native_fn)lvgl_qml_object_create, qml_Tile_values},
+	{"TabView", (evm_native_fn)lvgl_qml_object_create, qml_TabView_values},
+	{"Tab", (evm_native_fn)lvgl_qml_object_create, qml_Tab_values},
+	{"ListView", (evm_native_fn)lvgl_qml_object_create, qml_ListView_values},
+	{"Roller", (evm_native_fn)lvgl_qml_object_create, qml_Roller_values},
+	{"Slider", (evm_native_fn)lvgl_qml_object_create, qml_Slider_values},
+	{"ScrollArea", (evm_native_fn)lvgl_qml_object_create, qml_ScrollArea_values},
+	{"MessageBox", (evm_native_fn)lvgl_qml_object_create, qml_MessageBox_values},
+	{"TextArea", (evm_native_fn)lvgl_qml_object_create, qml_TextArea_values},
+	{"Keyboard", (evm_native_fn)lvgl_qml_object_create, qml_Keyboard_values},
+	{"Image", (evm_native_fn)lvgl_qml_object_create, qml_Image_values},
+	{"CheckBox", (evm_native_fn)lvgl_qml_object_create, qml_CheckBox_values},
+	{"Container", (evm_native_fn)lvgl_qml_object_create, qml_Container_values},
+	{"Style", (evm_native_fn)lvgl_qml_object_create, qml_Style_values},
+	{"StylePretty", (evm_native_fn)lvgl_qml_object_create, qml_StylePretty_values},
+	{"StylePlain", (evm_native_fn)lvgl_qml_object_create, qml_StylePlain_values},
+	{"StyleBtnRelease", (evm_native_fn)lvgl_qml_object_create, qml_StyleBtnRelease_values},
+	{"StyleBtnPress", (evm_native_fn)lvgl_qml_object_create, qml_StyleBtnPress_values},
+	{"Gauge", (evm_native_fn)lvgl_qml_object_create, qml_Gauge_values},
+	{"GaugeValue", (evm_native_fn)lvgl_qml_object_create, qml_GaugeValue_values},
+	{NULL, NULL, NULL}
+};
 
 int lvgl_qml_module(evm_t * e){
     global_e = e;
-    evm_qml_value_reg_t qml_rectangle_values[] = {
-        BASE_VALUES
-        {EVM_QML_CALLBACK, "onClicked", NULL},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Style_values[] = {
-        {EVM_QML_INT | EVM_QML_STRING, "main_color", (evm_native_fn)lvgl_qml_Style_set_main_color},
-        {EVM_QML_INT | EVM_QML_STRING, "grad_color", (evm_native_fn)lvgl_qml_Style_set_grad_color},
-        {EVM_QML_INT, "radius", (evm_native_fn)lvgl_qml_Style_set_radius},
-        {EVM_QML_DOUBLE, "opacity", (evm_native_fn)lvgl_qml_Style_set_opacity},
-        {EVM_QML_INT | EVM_QML_STRING, "border_color", (evm_native_fn)lvgl_qml_Style_set_border_color},
-        {EVM_QML_DOUBLE, "border_opacity", (evm_native_fn)lvgl_qml_Style_set_border_opacity},
-        {EVM_QML_INT, "border_width", (evm_native_fn)lvgl_qml_Style_set_border_width},
-        {EVM_QML_INT, "padding_bottom", (evm_native_fn)lvgl_qml_Style_set_padding_bottom},
-        {EVM_QML_INT, "padding_top", (evm_native_fn)lvgl_qml_Style_set_padding_top},
-        {EVM_QML_INT, "padding_left", (evm_native_fn)lvgl_qml_Style_set_padding_left},
-        {EVM_QML_INT, "padding_right", (evm_native_fn)lvgl_qml_Style_set_padding_right},
-        {EVM_QML_INT, "padding_inner", (evm_native_fn)lvgl_qml_Style_set_padding_inner},
-        {EVM_QML_INT | EVM_QML_STRING, "text_color", (evm_native_fn)lvgl_qml_Style_set_text_color},
-        {EVM_QML_INT | EVM_QML_STRING, "sel_color", (evm_native_fn)lvgl_qml_Style_set_text_sel_color},
-        {EVM_QML_INT, "letter_space", (evm_native_fn)lvgl_qml_Style_set_text_letter_space},
-        {EVM_QML_INT, "line_space", (evm_native_fn)lvgl_qml_Style_set_text_line_space},
-        {EVM_QML_DOUBLE, "text_opacity", (evm_native_fn)lvgl_qml_Style_set_text_opacity},
-        {EVM_QML_INT | EVM_QML_STRING, "line_color", (evm_native_fn)lvgl_qml_Style_set_line_color},
-        {EVM_QML_INT, "line_width", (evm_native_fn)lvgl_qml_Style_set_line_width},
-        {EVM_QML_INT, "line_opa", (evm_native_fn)lvgl_qml_Style_set_line_opa},
-        {EVM_QML_INT, "line_rounded", (evm_native_fn)lvgl_qml_Style_set_line_rounded},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Circle_values[] = {
-        BASE_VALUES
-        {EVM_QML_COMPLEX, "angles", (evm_native_fn)lvgl_qml_Circle_set_angles},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Bar_values[] = {
-        BASE_VALUES
-        {EVM_QML_INT, "min", (evm_native_fn)lvgl_qml_Bar_set_min},
-        {EVM_QML_INT, "max", (evm_native_fn)lvgl_qml_Bar_set_max},
-        {EVM_QML_INT, "value", (evm_native_fn)lvgl_qml_Bar_set_value},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Chart_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "type", (evm_native_fn)lvgl_qml_Chart_set_type},
-        {EVM_QML_INT, "lineWidth", (evm_native_fn)lvgl_qml_Chart_set_lineWidth},
-        {EVM_QML_COMPLEX, "lineCounts", (evm_native_fn)lvgl_qml_Chart_set_lineCounts},
-        {EVM_QML_COMPLEX, "yRange", (evm_native_fn)lvgl_qml_Chart_set_yrange},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_ChartSeries_values[] = {
-        BASE_VALUES
-        {EVM_QML_COMPLEX, "data", (evm_native_fn)lvgl_qml_ChartSeries_set_data},
-        {EVM_QML_STRING, "color", (evm_native_fn)lvgl_qml_ChartSeries_set_color},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_button_values[] = {
-        BASE_VALUES
-        {EVM_QML_CALLBACK, "onClicked", NULL},
-        {EVM_QML_CALLBACK, "onPressed", NULL},
-        {EVM_QML_CALLBACK, "onReleased", NULL},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Imagebutton_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "pressed", (evm_native_fn)lvgl_qml_ImageButton_set_pressedSource},
-        {EVM_QML_STRING, "released", (evm_native_fn)lvgl_qml_ImageButton_set_releasedSource},
-        {EVM_QML_STRING, "disbaled", (evm_native_fn)lvgl_qml_ImageButton_set_DisabledSource},
-        {EVM_QML_CALLBACK, "onClicked", NULL},
-        {EVM_QML_CALLBACK, "onPressed", NULL},
-        {EVM_QML_CALLBACK, "onReleased", NULL},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_TileView_values[] = {
-        BASE_VALUES
-        {EVM_QML_COMPLEX, "pageIds", (evm_native_fn)lvgl_qml_TileView_set_pageIds},
-        {EVM_QML_COMPLEX, "currentId", (evm_native_fn)lvgl_qml_TileView_set_currentId},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Tile_values[] = {
-        BASE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_TabView_values[] = {
-        BASE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Tab_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "title", (evm_native_fn)lvgl_qml_Tab_set_title},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_text_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_Text_set_text},
-        {EVM_QML_STRING, "symbol", (evm_native_fn)lvgl_qml_Text_set_symbol},
-        {EVM_QML_STRING, "align", (evm_native_fn)lvgl_qml_Text_set_align},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_ListView_values[] = {
-        BASE_VALUES
-        {EVM_QML_COMPLEX, "items", (evm_native_fn)lvgl_qml_ListView_set_Items},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Roller_values[] = {
-        BASE_VALUES
-        {EVM_QML_COMPLEX, "items", (evm_native_fn)lvgl_qml_Roller_set_Items},
-        {EVM_QML_INT, "currentIndex", (evm_native_fn)lvgl_qml_Roller_set_currentIndex},
-        {EVM_QML_INT, "visibleItemsCount", (evm_native_fn)lvgl_qml_Roller_set_visibleItemsCount},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Slider_values[] = {
-        BASE_VALUES
-        {EVM_QML_INT, "value", (evm_native_fn)lvgl_qml_Slider_set_value},
-        {EVM_QML_INT, "min", (evm_native_fn)lvgl_qml_Slider_set_min},
-        {EVM_QML_INT, "max", (evm_native_fn)lvgl_qml_Slider_set_max},
-        {EVM_QML_CALLBACK, "onValueChanged", (evm_native_fn)NULL},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_ScrollArea_values[] = {
-        BASE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-
-    evm_qml_value_reg_t qml_MessageBox_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_MessageBox_set_text},
-        {EVM_QML_STRING, "buttons", (evm_native_fn)lvgl_qml_MessageBox_set_buttons},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_TextArea_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "textAlign", (evm_native_fn)lvgl_qml_TextArea_set_text_align},
-        {EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_TextArea_set_text},
-        {EVM_QML_STRING, "placeholder", (evm_native_fn)lvgl_qml_TextArea_set_placeholder_text},
-        {EVM_QML_BOOLEAN, "oneLine", (evm_native_fn)lvgl_qml_TextArea_set_one_line},
-        {EVM_QML_INT, "maxLength", (evm_native_fn)lvgl_qml_TextArea_set_max_length},
-        {EVM_QML_BOOLEAN, "pwdMode", (evm_native_fn)lvgl_qml_TextArea_set_pwd_mode},
-        {EVM_QML_CALLBACK, "onValueChanged", NULL},
-        {EVM_QML_CALLBACK, "onFocused", NULL},
-        {EVM_QML_CALLBACK, "onDefocused", NULL},
-        {EVM_QML_CALLBACK, "onClicked", NULL},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Keyboard_values[] = {
-        BASE_VALUES
-        {EVM_QML_COMPLEX, "ta", (evm_native_fn)lvgl_qml_Keyboard_set_ta},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Image_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "source", (evm_native_fn)lvgl_qml_Image_set_source},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_CheckBox_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "text", (evm_native_fn)lvgl_qml_CheckBox_set_text},
-        {EVM_QML_CALLBACK, "onClicked", NULL},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Container_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "layout", (evm_native_fn)lvgl_qml_Container_set_layout},
-        {EVM_QML_BOOLEAN, "fit", (evm_native_fn)lvgl_qml_Container_set_fit},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Canvas_values[] = {
-        BASE_VALUES
-        {EVM_QML_STRING, "source", (evm_native_fn)lvgl_qml_Canvas_set_source},
-        {EVM_QML_STRING, "bg", (evm_native_fn)lvgl_qml_Canvas_set_bg},
-        {EVM_QML_INT, "buffer_size", (evm_native_fn)lvgl_qml_Canvas_set_buffer_size},
-        {EVM_QML_INT, "rotate", (evm_native_fn)lvgl_qml_Canvas_set_rotate},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_StylePretty_values[] = {
-        GLOBALSTYLE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_StylePlain_values[] = {
-        GLOBALSTYLE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_StyleBtnRelease_values[] = {
-        GLOBALSTYLE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_StyleBtnPress_values[] = {
-        GLOBALSTYLE_VALUES
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_Gauge_values[] = {
-        BASE_VALUES
-        {EVM_QML_INT, "max", (evm_native_fn)lvgl_qml_Gauge_set_max},
-        {EVM_QML_INT, "min", (evm_native_fn)lvgl_qml_Gauge_set_min},
-        {EVM_QML_COMPLEX, "scale", (evm_native_fn)lvgl_qml_Gauge_set_scale},
-        {EVM_QML_COMPLEX, "needle", (evm_native_fn)lvgl_qml_Gauge_set_needle},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_value_reg_t qml_GaugeValue_values[] = {
-        {EVM_QML_INT, "value", (evm_native_fn)lvgl_qml_Gauge_set_value},
-        {NULL, NULL, NULL}
-    };
-
-    evm_qml_object_reg_t qml_objects[] = {
-        {"Rectangle", (evm_native_fn)lvgl_qml_object_create, qml_rectangle_values},
-        {"Circle", (evm_native_fn)lvgl_qml_object_create, qml_Circle_values},
-        {"ProgressBar", (evm_native_fn)lvgl_qml_object_create, qml_Bar_values},
-        {"Chart", (evm_native_fn)lvgl_qml_object_create, qml_Chart_values},
-        {"ChartSeries", (evm_native_fn)lvgl_qml_object_create, qml_ChartSeries_values},
-        {"Button", (evm_native_fn)lvgl_qml_object_create, qml_button_values},
-        {"ImageButton", (evm_native_fn)lvgl_qml_object_create, qml_Imagebutton_values},
-        {"Text", (evm_native_fn)lvgl_qml_object_create, qml_text_values},
-        {"TileView", (evm_native_fn)lvgl_qml_object_create, qml_TileView_values},
-        {"Tile", (evm_native_fn)lvgl_qml_object_create, qml_Tile_values},
-        {"TabView", (evm_native_fn)lvgl_qml_object_create, qml_TabView_values},
-        {"Tab", (evm_native_fn)lvgl_qml_object_create, qml_Tab_values},
-        {"ListView", (evm_native_fn)lvgl_qml_object_create, qml_ListView_values},
-        {"Roller", (evm_native_fn)lvgl_qml_object_create, qml_Roller_values},
-        {"Slider", (evm_native_fn)lvgl_qml_object_create, qml_Slider_values},
-        {"ScrollArea", (evm_native_fn)lvgl_qml_object_create, qml_ScrollArea_values},
-        {"MessageBox", (evm_native_fn)lvgl_qml_object_create, qml_MessageBox_values},
-        {"TextArea", (evm_native_fn)lvgl_qml_object_create, qml_TextArea_values},
-        {"Keyboard", (evm_native_fn)lvgl_qml_object_create, qml_Keyboard_values},
-        {"Image", (evm_native_fn)lvgl_qml_object_create, qml_Image_values},
-        {"CheckBox", (evm_native_fn)lvgl_qml_object_create, qml_CheckBox_values},
-        {"Container", (evm_native_fn)lvgl_qml_object_create, qml_Container_values},
-        {"Style", (evm_native_fn)lvgl_qml_object_create, qml_Style_values},
-        {"Canvas", (evm_native_fn)lvgl_qml_object_create, qml_Canvas_values},
-        {"StylePretty", (evm_native_fn)lvgl_qml_object_create, qml_StylePretty_values},
-        {"StylePlain", (evm_native_fn)lvgl_qml_object_create, qml_StylePlain_values},
-        {"StyleBtnRelease", (evm_native_fn)lvgl_qml_object_create, qml_StyleBtnRelease_values},
-        {"StyleBtnPress", (evm_native_fn)lvgl_qml_object_create, qml_StyleBtnPress_values},
-        {"Gauge", (evm_native_fn)lvgl_qml_object_create, qml_Gauge_values},
-        {"GaugeValue", (evm_native_fn)lvgl_qml_object_create, qml_GaugeValue_values},
-        {NULL, NULL, NULL}
-    };
-
     evm_qml_register(e, qml_objects);
     int err = qml_module(e, (evm_native_fn)lvgl_qml_init);
     return err;
