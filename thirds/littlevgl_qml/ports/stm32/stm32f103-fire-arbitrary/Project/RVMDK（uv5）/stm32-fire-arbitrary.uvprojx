@@ -1107,47 +1107,47 @@
             <File>
               <FileName>lv_theme.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_alien.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_alien.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_alien.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_default.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_default.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_default.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_material.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_material.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_material.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_mono.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_mono.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_mono.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_nemo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_nemo.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_nemo.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_night.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_night.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_night.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_templ.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_templ.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_templ.c</FilePath>
             </File>
             <File>
               <FileName>lv_theme_zen.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_themes\lv_theme_zen.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_themes\lv_theme_zen.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1157,47 +1157,47 @@
             <File>
               <FileName>lv_font.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_fmt_txt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_fmt_txt.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_fmt_txt.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_roboto_12.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_roboto_12.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_roboto_12.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_roboto_12_subpx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_roboto_12_subpx.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_roboto_12_subpx.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_roboto_16.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_roboto_16.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_roboto_16.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_roboto_22.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_roboto_22.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_roboto_22.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_roboto_28.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_roboto_28.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_roboto_28.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_roboto_28_compressed.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_roboto_28_compressed.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_roboto_28_compressed.c</FilePath>
             </File>
             <File>
               <FileName>lv_font_unscii_8.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\lvgl\src\lv_font\lv_font_unscii_8.c</FilePath>
+              <FilePath>..\..\..\..\..\lvgl\src\lv_font\lv_font_unscii_8.c</FilePath>
             </File>
           </Files>
         </Group>
